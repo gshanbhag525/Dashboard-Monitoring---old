@@ -6,6 +6,7 @@ import sys
 import time
 import json
 import requests
+import socket
 
 client = InfluxDBClient(host='10.1.1.9', port=8086, database='telegraf')
 types = ['A (IPv4)', 'AAAA (IPv6)', 'ANY', 'SRV', 'SOA', 'PTR', 'TXT']
@@ -23,6 +24,11 @@ def wait_for_connection():
 		except KeyboardInterrupt:
 			sys.exit(0)
 
+def get_Host_name_IP():
+  global host_name
+  global host_ip
+  host_name = socket.gethostname()
+  host_ip = socket.gethostbyname(host_name)
 
 def get_last_id():
 	'''fill existing data from pihole-FTL.db'''
@@ -59,7 +65,8 @@ def add_new_results(last_id):
 							{
 								"measurement": "pihole-FTL",
 								"tags": {
-								  "server": "pihole2",
+								  "host_name": host_name,
+								  "host_ip": host_ip,
 									"type": types[item[2] - 1],
 									"status": statuses[item[3]],
 									"domain": item[4],
@@ -80,5 +87,6 @@ def add_new_results(last_id):
 
 if __name__ == "__main__":
 	wait_for_connection()
+	get_Host_name_IP()
 	last_id = get_last_id()
 	add_new_results(last_id)
