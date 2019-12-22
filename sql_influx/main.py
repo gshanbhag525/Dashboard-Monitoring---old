@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 from sqlite3 import connect
 from influxdb import InfluxDBClient
 import sys
@@ -5,7 +7,7 @@ import time
 import json
 import requests
 
-client = InfluxDBClient(host='influxdb', port=8086, database='pihole-FTL')
+client = InfluxDBClient(host='10.1.1.9', port=8086, database='telegraf')
 types = ['A (IPv4)', 'AAAA (IPv6)', 'ANY', 'SRV', 'SOA', 'PTR', 'TXT']
 statuses = ['Unknown', 'blocklist', 'localhost', 'cache', 'blocklist', 'blocklist', 'blocklist', 'blocklist', 'blocklist']
 
@@ -57,6 +59,7 @@ def add_new_results(last_id):
 							{
 								"measurement": "pihole-FTL",
 								"tags": {
+								  "server": "pihole2",
 									"type": types[item[2] - 1],
 									"status": statuses[item[3]],
 									"domain": item[4],
