@@ -27,4 +27,5 @@ services:
       - ./telegraf:/etc/telegraf
       - /opt/vc:/opt/vc
       - /:/hostfs:ro
+      - /run/udev:/run/udev:ro
     restart: unless-stopped
