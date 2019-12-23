@@ -15,7 +15,7 @@ services:
   telegraf:
     image: telegraf:latest
     container_name: telegraf
-    hostname: pihole-${HOST}
+    hostname: ${hostname}
     devices:
       - /dev/vchiq
       - /dev/vcsm
