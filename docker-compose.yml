@@ -17,10 +17,14 @@ services:
     image: telegraf:latest
     container_name: telegraf
     hostname: ${hostname}
+    environment:
+      - HOST_MOUNT_PREFIX=/hostfs
+      - HOST_PROC=/hostfs/proc
     devices:
       - /dev/vchiq
       - /dev/vcsm
     volumes:
       - ./telegraf:/etc/telegraf
       - /opt/vc:/opt/vc
+      - /:/hostfs:ro
     restart: unless-stopped
