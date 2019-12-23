@@ -23,4 +23,4 @@ services:
     volumes:
       - ./telegraf:/etc/telegraf
       - /opt/vc:/opt/vc
-    restart: always
+    restart: unless-stopped
