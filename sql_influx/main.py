@@ -24,11 +24,9 @@ def wait_for_connection():
 		except KeyboardInterrupt:
 			sys.exit(0)
 
-def get_Host_name_IP():
+def get_host_name():
   global host_name
-  global host_ip
   host_name = socket.gethostname()
-  host_ip = socket.gethostbyname(host_name)
 
 def get_last_id():
 	'''fill existing data from pihole-FTL.db'''
@@ -66,7 +64,6 @@ def add_new_results(last_id):
 								"measurement": "pihole-FTL",
 								"tags": {
 								  "host_name": host_name,
-								  "host_ip": host_ip,
 									"type": types[item[2] - 1],
 									"status": statuses[item[3]],
 									"domain": item[4],
@@ -87,6 +84,6 @@ def add_new_results(last_id):
 
 if __name__ == "__main__":
 	wait_for_connection()
-	get_Host_name_IP()
+	get_host_name()
 	last_id = get_last_id()
 	add_new_results(last_id)

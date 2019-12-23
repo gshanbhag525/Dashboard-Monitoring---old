@@ -6,6 +6,7 @@ services:
     container_name: sql_influx
     build: ./sql_influx
     command: python main.py
+    hostname: ${hostname}
     environment:
       - PYTHONUNBUFFERED=1
     volumes:
