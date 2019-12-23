@@ -8,10 +8,6 @@ services:
     command: python main.py
     environment:
       - PYTHONUNBUFFERED=1
-    depends_on:
-      - influxdb
-    networks:
-      - influxdb
     volumes:
       - /etc/pihole/:/etc/pihole
     restart: unless-stopped
@@ -19,10 +15,6 @@ services:
   telegraf:
     image: telegraf:latest
     container_name: telegraf
-    depends_on:
-      - influxdb
-    networks:
-      - influxdb
     devices:
       - /dev/vchiq
       - /dev/vcsm
@@ -30,35 +22,3 @@ services:
       - ./telegraf:/etc/telegraf
       - /opt/vc:/opt/vc
     restart: always
-
-  influxdb:
-    image: influxdb:latest
-    container_name: influxdb
-    networks:
-      influxdb:
-    volumes:
-      - influxdb-storage:/var/lib/influxdb
-    restart: unless-stopped
-
-  grafana:
-    image: grafana/grafana:latest
-    container_name: grafana
-    depends_on:
-      - influxdb
-    ports:
-      - 3000:3000
-    networks:
-      - influxdb
-    environment:
-      - GF_INSTALL_PLUGINS=grafana-piechart-panel
-    volumes:
-      - grafana-storage:/var/lib/grafana
-      - ./grafana/provisioning:/etc/grafana/provisioning
-    restart: unless-stopped
-
-volumes:
-  grafana-storage:
-  influxdb-storage:
-
-networks:
-  influxdb:
