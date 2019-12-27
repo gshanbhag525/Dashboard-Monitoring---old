@@ -50,6 +50,12 @@ _mainScript_() {
   fi # /pis
 
   if [[ "${OSTYPE}" == "darwin"* ]]; then
+    notice "Running Telegraf in docker on MacOS does not allow tracking of most variables."
+    notice "It is recommended to run ${tan}'brew install telegraf'${reset} and add it to launchd"
+
+    if ! _seekConfirmation_ "Continue installing docker?"; then _safeExit_; fi
+
+
     notice "Checking for needed binaries..."
     (_checkBinary_ brew) || fatal "Homebrew is not installed. Can not continue"
 
