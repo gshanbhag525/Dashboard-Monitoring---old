@@ -6,7 +6,7 @@ _mainScript_() {
 #if [[ "$OSTYPE" == "linux-gnu"* ]]; then
 #if [[ "$OSTYPE" == "darwin"* ]]; then
 
-if cat /sys/firmware/devicetree/base/model;echo | grep "raspberry" &> /dev/null; then
+if [[ "$OSTYPE" == "linux-gnu"* ]] && cat /etc/*-release | grep Raspbian &>/dev/null; then
   success "I am raspberry"
 fi
 
