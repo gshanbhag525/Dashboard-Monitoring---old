@@ -2,17 +2,84 @@
 
 _mainScript_() {
   me="$(whoami)"
+  if git rev-parse --show-toplevel &>/dev/null; then
+    gitRoot="$(git rev-parse --show-toplevel)" \
+      && verbose "gitRoot: ${gitRoot}"
+  else
+    gitRoot="${PWD}"
+  fi
 
-#if [[ "$OSTYPE" == "linux-gnu"* ]]; then
-#if [[ "$OSTYPE" == "darwin"* ]]; then
+  #if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+  #if [[ "$OSTYPE" == "darwin"* ]]; then
 
-if [[ "$OSTYPE" == "linux-gnu"* ]] && cat /etc/*-release | grep Raspbian &>/dev/null; then
-  success "I am raspberry"
-fi
+  if [[ "${OSTYPE}" == "linux-gnu"* ]] && cat /etc/*-release | grep Raspbian &>/dev/null; then
+    notice "Checking for needed binaries..."
 
-if [[ "$OSTYPE" == "darwin"* ]]; then
-  success "I am osx"
-fi
+    (_checkBinary_ docker) || {
+      notice "Installing Docker"
+      sudo apt-get install -y docker
+    }
+    (_checkBinary_ docker-compose) || {
+      notice "Installing Docker-Compose"
+      sudo apt-get install -y docker-compose
+    }
+
+    tconfig="${gitRoot}/telegraf-configs/telegraf-rpi.conf"
+    if [ -e "${tconfig}" ]; then
+      _makeSymlink_ "${tconfig}" "${gitRoot}/telegraf/telegraf.conf"
+    else
+      fatal "Can not find ${tconfig}"
+    fi
+
+    if command -v pihole; then
+      dconfig="${gitRoot}/compose-configs/compose-pihole.yml"
+      if [ -e "${dconfig}" ]; then
+        _makeSymlink_ "${dconfig}" "${gitRoot}/docker-compose.yml"
+      else
+        fatal "Can not find ${dconfig}"
+      fi
+    else
+      dconfig="${gitRoot}/compose-configs/compose-default.yml"
+      if [ -e "${dconfig}" ]; then
+        _makeSymlink_ "${dconfig}" "${gitRoot}/docker-compose.yml"
+      else
+        fatal "Can not find ${dconfig}"
+      fi
+    fi
+
+  fi # /pis
+
+  if [[ "${OSTYPE}" == "darwin"* ]]; then
+    notice "Checking for needed binaries..."
+    (_checkBinary_ brew) || fatal "Homebrew is not installed. Can not continue"
+
+    (_checkBinary_ docker) || {
+      notice "Installing Docker"
+      brew install docker
+    }
+    (_checkBinary_ docker-compose) || {
+      notice "Installing Docker-Compose"
+      brew install docker-compose
+    }
+    (_checkBinary_ osx-cpu-temp) || {
+      notice "Installing osx-cpu-temp"
+      brew install osx-cpu-temp
+    }
+
+    tconfig="${gitRoot}/telegraf-configs/telegraf-osx.conf"
+    if [ -e "${tconfig}" ]; then
+      _makeSymlink_ "${tconfig}" "${gitRoot}/telegraf/telegraf.conf"
+    else
+      fatal "Can not find ${tconfig}"
+    fi
+
+    dconfig="${gitRoot}/compose-configs/compose-default.yml"
+    if [ -e "${dconfig}" ]; then
+      _makeSymlink_ "${dconfig}" "${gitRoot}/docker-compose.yml"
+    else
+      fatal "Can not find ${dconfig}"
+    fi
+  fi # /osx
 
 } # end _mainScript_
 
@@ -22,13 +89,10 @@ _sourceHelperFiles_() {
   local sourceFile
   filesToSource=(
     "${HOME}/dotfiles/scripting/helpers/baseHelpers.bash"
-    "${HOME}/dotfiles/scripting/helpers/arrays.bash"
     "${HOME}/dotfiles/scripting/helpers/files.bash"
-    "${HOME}/dotfiles/scripting/helpers/macOS.bash"
     "${HOME}/dotfiles/scripting/helpers/numbers.bash"
     "${HOME}/dotfiles/scripting/helpers/services.bash"
     "${HOME}/dotfiles/scripting/helpers/textProcessing.bash"
-    "${HOME}/dotfiles/scripting/helpers/dates.bash"
   )
   for sourceFile in "${filesToSource[@]}"; do
     [ ! -f "${sourceFile}" ] \
@@ -150,16 +214,16 @@ _parseOptions_() {
 # Initialize and run the script
 trap '_trapCleanup_ $LINENO $BASH_LINENO "$BASH_COMMAND" "${FUNCNAME[*]}" "$0" "${BASH_SOURCE[0]}"' \
   EXIT INT TERM SIGINT SIGQUIT
-set -o errtrace                           # Trap errors in subshells and functions
-set -o errexit                            # Exit on error. Append '||true' if you expect an error
-set -o pipefail                           # Use last non-zero exit code in a pipeline
+set -o errtrace     # Trap errors in subshells and functions
+set -o errexit      # Exit on error. Append '||true' if you expect an error
+set -o pipefail     # Use last non-zero exit code in a pipeline
 # shopt -s nullglob globstar              # Make `for f in *.txt` work when `*.txt` matches zero files
-IFS=$' \n\t'                              # Set IFS to preferred implementation
+IFS=$' \n\t'        # Set IFS to preferred implementation
 # set -o xtrace                           # Run in debug mode
-set -o nounset                            # Disallow expansion of unset variables
+set -o nounset      # Disallow expansion of unset variables
 # [[ $# -eq 0 ]] && _parseOptions_ "-h"   # Force arguments when invoking the script
-_parseOptions_ "$@"                       # Parse arguments passed to script
+_parseOptions_ "$@" # Parse arguments passed to script
 # _makeTempDir_ "$(basename "$0")"        # Create a temp directory '$tmpDir'
 # _acquireScriptLock_                     # Acquire script lock
-_mainScript_                              # Run script
-_safeExit_                                # Exit cleanly
+_mainScript_ # Run script
+_safeExit_   # Exit cleanly

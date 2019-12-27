@@ -1,0 +1,20 @@
+version: '3'
+
+services:
+
+  telegraf:
+    image: telegraf:latest
+    container_name: telegraf
+    hostname: ${hostname}
+    environment:
+      - HOST_MOUNT_PREFIX=/hostfs
+      - HOST_PROC=/hostfs/proc
+    devices:
+      - /dev/vchiq
+      - /dev/vcsm
+    volumes:
+      - ./telegraf:/etc/telegraf
+      - /opt/vc:/opt/vc
+      - /:/hostfs:ro
+      - /run/udev:/run/udev:ro
+    restart: unless-stopped
