@@ -39,7 +39,7 @@ _mainScript_() {
         fatal "Can not find ${dconfig}"
       fi
     else
-      dconfig="${gitRoot}/compose-configs/compose-rpi-no-pihole.yml"
+      dconfig="${gitRoot}/compose-configs/compose-rpi-nopihole.yml"
       if [ -e "${dconfig}" ]; then
         _makeSymlink_ "${dconfig}" "${gitRoot}/docker-compose.yml"
       else
