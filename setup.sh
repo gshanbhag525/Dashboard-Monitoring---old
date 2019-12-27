@@ -32,14 +32,14 @@ _mainScript_() {
     fi
 
     if command -v pihole; then
-      dconfig="${gitRoot}/compose-configs/compose-pihole.yml"
+      dconfig="${gitRoot}/compose-configs/compose-rpi-pihole.yml"
       if [ -e "${dconfig}" ]; then
         _makeSymlink_ "${dconfig}" "${gitRoot}/docker-compose.yml"
       else
         fatal "Can not find ${dconfig}"
       fi
     else
-      dconfig="${gitRoot}/compose-configs/compose-default.yml"
+      dconfig="${gitRoot}/compose-configs/compose-rpi-no-pihole.yml"
       if [ -e "${dconfig}" ]; then
         _makeSymlink_ "${dconfig}" "${gitRoot}/docker-compose.yml"
       else
@@ -73,7 +73,7 @@ _mainScript_() {
       fatal "Can not find ${tconfig}"
     fi
 
-    dconfig="${gitRoot}/compose-configs/compose-default.yml"
+    dconfig="${gitRoot}/compose-configs/compose-mac.yml"
     if [ -e "${dconfig}" ]; then
       _makeSymlink_ "${dconfig}" "${gitRoot}/docker-compose.yml"
     else
