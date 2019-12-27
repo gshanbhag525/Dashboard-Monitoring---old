@@ -13,7 +13,7 @@ services:
       - /dev/vchiq
       - /dev/vcsm
     volumes:
-      - ./telegraf:/etc/telegraf
+      - ./telegraf/telegraf.conf:/etc/telegraf/telegraf.conf:ro
       - /opt/vc:/opt/vc
       - /:/hostfs:ro
       - /run/udev:/run/udev:ro
